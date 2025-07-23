@@ -1,0 +1,56 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environments
+.env/
+.venv/
+env/
+venv/
+
+# Jupyter Notebook checkpoints
+.ipynb_checkpoints/
+
+# VSCode or PyCharm settings
+.vscode/
+.idea/
+
+# macOS and Windows system files
+.DS_Store
+Thumbs.db
+
+# Logs and temporary files
+*.log
+*.tmp
+*.bak
+
+# Ignore shapefiles and NetCDF outputs by default
+*.shp
+*.shx
+*.dbf
+*.prj
+*.cpg
+*.tif
+*.tiff
+*.hdf
+*.nc
+
+# Allow example shapefiles and NetCDF files in the data folder
+!data/**/*.shp
+!data/**/*.shx
+!data/**/*.dbf
+!data/**/*.prj
+!data/**/*.cpg
+!data/**/*.tif
+!data/**/*.tiff
+!data/**/*.hdf
+!data/**/*.nc
+
+# Dependency lock files
+poetry.lock
+Pipfile.lock
+
+# Notebook-generated output folder (optional)
+output/
+
