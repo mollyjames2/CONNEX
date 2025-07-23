@@ -1,0 +1,186 @@
+# CONNEX  
+### Connectivity Of Nodes and NEtwork eXploration
+
+A graph-based analysis tool for evaluating marine larval dispersal and ecological connectivity using Lagrangian model outputs.
+
+---
+
+## Overview
+
+**CONNEX** is a modular toolkit that transforms larval dispersal data into directed, weighted networks to quantify and visualize connectivity across marine ecosystems. It is designed to work with output from particle tracking simulations (e.g., Parcels, Ichthyop, etc.) and allows users to analyze how larvae move between predefined spatial units.
+
+By applying network science techniques, CONNEX enables researchers and marine planners to:
+
+- Identify stepping-stone habitats and connectivity hotspots
+- Quantify isolation, centrality, and reachability of habitat patches
+- Detect communities of well-connected regions using graph theory
+- Compare connectivity across species, seasons, or management scenarios
+- Support marine spatial planning, conservation design, and metapopulation modeling
+
+---
+
+## How It Works
+
+CONNEX takes larval dispersal outputs in **NetCDF or CSV format**, containing particle tracking data with release and settlement coordinates (and optionally timestamps). It maps these trajectories onto **spatial nodes**, which are defined by a shapefile. These nodes represent areas such as habitat patches, grid cells, or management zones.
+
+You can:
+
+- Provide your own shapefile of polygons to define node boundaries
+- Use the built-in node-generation functions to:
+  - Create a regular grid of nodes across your study region
+  - Generate nodes by clustering initial particle release locations
+
+This flexibility makes it easy to tailor the spatial resolution and structure of your connectivity analysis.
+
+---
+
+## Key Features
+
+- Accepts larval dispersal outputs in **NetCDF or CSV** format  
+- Converts trajectories into adjacency matrices or edge lists  
+- Builds directed, weighted graphs using `networkx`  
+- Calculates metrics like degree, betweenness, clustering, and modularity  
+- Detects graph communities using algorithms like Louvain or Girvan–Newman  
+- Visualizes connectivity networks with spatial overlays  
+- Filters and thresholds links based on frequency, probability, or duration  
+- Supports batch analysis of multiple species, regions, or time steps  
+- Outputs results as shapefiles, GeoJSON, CSV, or graph objects  
+
+---
+
+## Directory Structure
+
+```
+CONNEX/
+│
+├── data/                   # Example dispersal outputs or preprocessed files
+├── src/                    # Core codebase
+│   ├── preprocessing.py    # Converts raw trajectories into node/link data
+│   ├── shapefile_tools.py  # Node generation from particle data or grid
+│   ├── graph_builder.py    # Constructs network from dispersal matrix
+│   ├── metrics.py          # Computes graph metrics and communities
+│   ├── visualization.py    # Plots networks with basemaps
+│   └── utils.py            # Helper functions
+│
+├── notebooks/              # Jupyter tutorials and walkthroughs
+├── output/                 # Generated graphs, metrics, maps
+├── README.md               # This file
+└── requirements.txt        # Python dependencies
+```
+
+---
+
+## Quickstart
+
+1. Install dependencies (Python 3.8+):
+
+```bash
+pip install -r requirements.txt
+```
+
+2. Prepare your data  
+Use larval dispersal outputs in **NetCDF** or **CSV** format. These should contain particle release and settlement coordinates, and optionally timestamps.
+
+3. Generate node shapefile (optional)
+
+```python
+from src.shapefile_tools import generate_node_grid
+generate_node_grid(extent=[-75, -65, 10, 20], cell_size=0.5, output_path='data/nodes.shp')
+```
+
+4. Build connectivity graph
+
+```python
+from src.graph_builder import build_connectivity_graph
+G = build_connectivity_graph('data/larvae_dispersal.csv', 'data/nodes.shp')
+```
+
+5. Compute metrics and detect communities
+
+```python
+from src.metrics import compute_all_metrics
+results = compute_all_metrics(G, detect_communities=True)
+```
+
+6. Visualize the network
+
+```python
+from src.visualization import plot_network
+plot_network(G, base_map='world')
+```
+
+---
+
+## Example Metrics
+
+| Metric           | Description                                 |
+|------------------|---------------------------------------------|
+| Degree centrality| Number of connections per node              |
+| Betweenness      | Influence over dispersal pathways           |
+| Clustering coef. | Local connectivity density                  |
+| Modularity       | Community structure within the network      |
+| Path length      | Connectivity efficiency                     |
+
+---
+
+## Use Cases
+
+- Marine protected area (MPA) network design  
+- Identifying critical habitat links for fishery species  
+- Comparing dispersal under climate or current scenarios  
+- Estimating metapopulation persistence based on connectivity  
+- Detecting spatial communities of interconnected habitat  
+
+---
+
+## Requirements
+
+- `networkx`  
+- `pandas`  
+- `matplotlib`  
+- `geopandas`  
+- `numpy`  
+- `basemap` or `cartopy` (for mapping)
+
+Install with:
+
+```bash
+pip install -r requirements.txt
+```
+
+---
+
+## Documentation & Tutorials
+
+See the `notebooks/` folder for:
+
+- End-to-end examples  
+- Node generation workflows  
+- Multi-species comparisons  
+- Custom map visualizations  
+
+API documentation coming soon.
+
+---
+
+## Contributions
+
+We welcome contributions. To suggest a feature, submit a pull request, or report a bug, please open an issue at:
+
+https://github.com/mollyjames2/connex/issues
+
+---
+
+## License
+
+MIT License. See the `LICENSE` file for details.
+
+---
+
+## Citation
+
+If you use CONNEX in a publication, please cite:
+
+> CONNEX: Connectivity Of Nodes and NEtwork eXploration.  
+> James (2025). GitHub repository: https://github.com/mollyjames2/connex
+
