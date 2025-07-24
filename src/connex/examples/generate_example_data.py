@@ -65,7 +65,7 @@ def generate_particles(node_polys, particles_per_node):
     return all_lon, all_lat
 
 
-def run_simulation(dataset_dir, lon, lat, output_path, diffusion=100.0, runtime_days=10):
+def run_simulation(dataset_dir, lon, lat, output_path, diffusion=100.0,runtime_days=10, dt=timedelta(minutes=10),outputdt=timedelta(hours=6)):
     """Runs Parcels simulation with advection and diffusion and saves output."""
     filenames = {
         "U": f"{dataset_dir}/20*.nc",
@@ -86,8 +86,8 @@ def run_simulation(dataset_dir, lon, lat, output_path, diffusion=100.0, runtime_
     pset.execute(
         kernels,
         runtime=timedelta(days=runtime_days),
-        dt=timedelta(minutes=10),
-        output_file=pset.ParticleFile(name=output_path,outputdt=timedelta(hours=6))
+        dt=dt,
+        output_file=pset.ParticleFile(name=output_path,outputdt=outputdt)
     )
 
     print(f"Simulation complete. Output saved to {output_path}")
@@ -100,6 +100,8 @@ def generate_connex_data(
     output_dir="data",
     diffusion=10.0,
     runtime_days=3,
+    dt=timedelta(minutes=10),
+    outputdt=timedelta(hours=6)
 ):
     """Main entrypoint for generating simulation data."""
     os.makedirs(output_dir, exist_ok=True)
@@ -117,7 +119,7 @@ def generate_connex_data(
     lons, lats = generate_particles(node_polys, particles_per_node)
 
     output_path = os.path.join(output_dir, "example_trajectories.zarr")
-    run_simulation(dataset_dir, lons, lats, output_path, diffusion=diffusion, runtime_days=runtime_days)
+    run_simulation(dataset_dir, lons, lats, output_path, diffusion=diffusion,runtime_days=runtime_days,dt = dt, outputdt = outputdt)
 
     return {
         "output_path": output_path,

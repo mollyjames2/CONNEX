@@ -1,4 +1,5 @@
 from connex.examples.generate_example_data import generate_connex_data
+from datetime import timedelta
 
 # Define node centers (longitude, latitude) for the simulation
 node_centers = [
@@ -16,7 +17,9 @@ result = generate_connex_data(
     particles_per_node=100,
     output_dir="data",
     diffusion=100.0,
-    runtime_days=3
+    runtime_days=3,
+    dt=timedelta(minutes=10),
+    outputdt=timedelta(hours=6)
 )
 
 # Print file paths and metadata needed for later analysis

@@ -16,39 +16,22 @@ def plot_trajectories(
     start_time=None,
     end_time=None,
     time_var="time",
-    particle_var="trajectory",
+    time_dim="obs",
+    particle_dim="trajectory",
     color_by_node=False,
     particles_per_node=None
 ):
-    """
-    Plot particle trajectories from .zarr, .nc, or .csv, optionally colored by source node
-    and with start/end markers.
-
-    Parameters:
-        data_path (str): Path to the dataset file (.zarr, .nc, .csv).
-        extent (list): [lon_min, lon_max, lat_min, lat_max].
-        show_nodes (bool): Whether to show polygonal node boundaries.
-        node_polys (list): List of shapely Polygon objects.
-        save_path (str): If set, saves figure to file instead of displaying.
-        start_time (str): Start time filter (inclusive).
-        end_time (str): End time filter (inclusive).
-        time_var (str): Time variable name.
-        particle_var (str): Particle dimension name.
-        color_by_node (bool): Whether to color trajectories by release node.
-        particles_per_node (int): Number of particles released per node.
-    """
-    ext = os.path.splitext(data_path)[-1].lower()
     print(f" Reading data from: {data_path}")
-
+    ext = os.path.splitext(data_path)[-1].lower()
     fig = plt.figure(figsize=(10, 8))
     ax = plt.axes(projection=ccrs.PlateCarree())
 
-    # Initialize color palette
+    # --- Color setup ---
     colors = None
     if color_by_node and particles_per_node:
         if ext in [".zarr", ".nc"]:
             ds_temp = xr.open_zarr(data_path) if ext == ".zarr" else xr.open_dataset(data_path)
-            num_particles = ds_temp.sizes[particle_var]
+            num_particles = ds_temp.sizes[particle_dim]
         elif ext == ".csv":
             df_temp = pd.read_csv(data_path)
             num_particles = df_temp["particle_id"].nunique()
@@ -59,23 +42,32 @@ def plot_trajectories(
         cmap = cm.get_cmap("tab10", num_nodes)
         colors = [cmap(i) for i in range(num_nodes)]
 
+    # --- Load and filter data ---
     if ext in [".zarr", ".nc"]:
         ds = xr.open_zarr(data_path) if ext == ".zarr" else xr.open_dataset(data_path)
-        times = pd.to_datetime(ds[time_var].values)
 
-        # Filter by time
+        # Time filtering using the variable, not the dimension
+        times = pd.to_datetime(ds[time_var].values)
         time_mask = np.full(times.shape, True)
         if start_time:
             time_mask &= times >= pd.to_datetime(start_time)
         if end_time:
             time_mask &= times <= pd.to_datetime(end_time)
-
         time_idxs = np.where(time_mask)[0]
-        if len(time_idxs) == 0:
-            raise ValueError("No data found in specified time range.")
 
-        lons = ds.lon.isel({ds[time_var].dims[0]: time_idxs}).values
-        lats = ds.lat.isel({ds[time_var].dims[0]: time_idxs}).values
+        if len(time_idxs) == 0:
+            raise ValueError("No data in specified time range.")
+
+        # Determine correct time axis
+        time_axis = ds[time_var].dims[0]
+
+        lons = ds["lon"].isel({time_axis: time_idxs}).values
+        lats = ds["lat"].isel({time_axis: time_idxs}).values
+
+        # Transpose if needed to [particles, time]
+        if ds["lon"].dims[0] == time_dim:
+            lons = lons.transpose()
+            lats = lats.transpose()
 
         for i in range(lons.shape[0]):
             color = colors[i // particles_per_node] if color_by_node and colors else "blue"
@@ -86,7 +78,6 @@ def plot_trajectories(
     elif ext == ".csv":
         df = pd.read_csv(data_path)
         df["time"] = pd.to_datetime(df["time"])
-
         if start_time:
             df = df[df["time"] >= pd.to_datetime(start_time)]
         if end_time:
@@ -101,7 +92,7 @@ def plot_trajectories(
     else:
         raise ValueError("Unsupported file format. Use .zarr, .nc, or .csv")
 
-    # Optional: plot node polygons
+    # --- Optional node polygons ---
     if show_nodes and node_polys:
         for poly in node_polys:
             xs, ys = poly.exterior.xy
@@ -115,8 +106,6 @@ def plot_trajectories(
         ax.set_extent(extent, crs=ccrs.PlateCarree())
 
     plt.title("Particle Trajectories (Colored by Source Node)" if color_by_node else "Particle Trajectories")
-
-    # Legend
     ax.plot([], [], marker='o', color='black', linestyle='None', label='Start')
     ax.plot([], [], marker='x', color='black', linestyle='None', label='End')
     ax.legend(loc='lower left')

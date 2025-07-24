@@ -1,63 +1,106 @@
 import geopandas as gpd
 from connex.analysis.analysis import open_trajectory_data,summarize_connectivity_start_end, summarize_connectivity_by_path
 from connex.plot.plot import plot_trajectories
-from connex.analysis.graph_builder import build_connectivity_matrix_start_end
+from connex.analysis.graph_builder import build_connectivity_matrix_start_end, build_connectivity_matrix_by_path
 import xarray as xr
+from datetime import timedelta
 
-filepath = 'data/example_trajectories.zarr'
+# --- User Configuration ---
+data_path = "data/example_trajectories.zarr"  # or .nc
+shapefile_path = "data/node_shp.shp"
+start_time = None  # Or "2025-01-01T00:00:00"
+end_time = None    # Or "2025-01-05T00:00:00"
+outputdt = timedelta(hours=6) # the output timestep of the simulation data
+settlement_hours = 48  # Minimum age to settle
+time_var = "time"
+time_dim = "obs"
+particle_dim = "trajectory"
+lon_var = "lon"
+lat_var = "lat"
+ppn = 100 # particles per node
+pld = None  #pld in days. setting to None will use the last timestep in the
+         #simulation data, so will setting to a larger number than the days in the simulation
 
 # Load the polygons from shapefile
-polygon_gdf = gpd.read_file("data/node_shp.shp")
+polygon_gdf = gpd.read_file(shapefile_path)
 node_polys = polygon_gdf.geometry.tolist()
 node_ids = polygon_gdf["node_id"].tolist()
 
-ds = open_trajectory_data(filepath)
+ds = open_trajectory_data(data_path)
 
-# Plot particle trajectories
+# --- Plot particle trajectories ---
+print("\n🔹 Plotting trajectories...")
 plot_trajectories(
-    data_path=filepath,
+    data_path=data_path,
+    extent=None,  # or [min_lon, max_lon, min_lat, max_lat]
     show_nodes=True,
     node_polys=node_polys,
-#    start_time="2002-05-07",
-#    end_time="2002-05-08",
+    start_time=start_time,
+    end_time=end_time,
+    time_var=time_var,
+    time_dim=time_dim,
+    particle_dim=particle_dim,
     color_by_node=True,
-    particles_per_node=100,
-    time_var="obs",
-    particle_var="trajectory"
+    particles_per_node=ppn,
+    save_path=None  # or ".png" to save
 )
 
-# Print a node connectivity summary based on the start and end locations of particles
+
+# --- Run start-end connectivity summary ---
 summary = summarize_connectivity_start_end(
-    ds,
-    particles_per_node=100,
-    node_ids=node_ids ,
-    node_polys=node_polys,
-    time_dim = 'obs',
-    particle_dim = 'trajectory'#,
-#    start_time="2002-05-07",
-#    end_time="2002-05-08",
-)
-
-# Print a node connectivity cummary based on the paths of the particles
-summary = summarize_connectivity_by_path(
-    ds,
-    particles_per_node=100,
+    ds=ds,
+    particles_per_node=ppn,
     node_ids=node_ids,
     node_polys=node_polys,
-    time_dim="obs",
-    particle_dim="trajectory",
-    settlement_hours=1  # Only consider connectivity within first 48 hours
+    lon_var=lon_var,
+    lat_var=lat_var,
+    time_var=time_var,
+    time_dim=time_dim,
+    particle_dim=particle_dim,
+    pld_days=pld
+)
+
+# Run path-based connectivity summary
+summary = summarize_connectivity_by_path(
+    ds=ds,
+    particles_per_node=ppn,
+    node_ids=node_ids,
+    node_polys=node_polys,
+    settlement_hours=settlement_hours,
+    pld_days=pld,
+    outputdt=outputdt,
+    lon_var=lon_var,
+    lat_var=lat_var,
+    time_var=time_var,
+    time_dim=time_dim,
+    particle_dim=particle_dim
 )
 
 
-matrix = build_connectivity_matrix_start_end(
-    data_path=filepath,
-    shapefile_path="data/node_shp.shp",
-#    start_time="2002-05-07",
-#    end_time="2002-05-08",
-    time_var="obs",
-    particle_var="trajectory"
+# --- Start-End Matrix ---
+print("\n🔷 Start-End Connectivity Matrix:")
+start_end_matrix = build_connectivity_matrix_start_end(
+    data_path=data_path,
+    shapefile_path=shapefile_path,
+    pld_days=pld,
+    time_var=time_var,
+    time_dim=time_dim,
+    particle_dim=particle_dim
 )
+print(start_end_matrix)
 
-print(matrix)
-
+# --- Path-Based Matrix ---
+print("\n🔶 Path-Based Connectivity Matrix:")
+path_matrix = build_connectivity_matrix_by_path(
+    data_path=data_path,
+    shapefile_path=shapefile_path,
+    settlement_hours=settlement_hours,
+    pld_days=pld,
+    outputdt=outputdt,
+    time_var=time_var,
+    time_dim=time_dim,
+    particle_dim=particle_dim,
+    lon_var=lon_var,
+    lat_var=lat_var
+)
+print(path_matrix)
