@@ -43,3 +43,7 @@ Pipfile.lock
 # Notebook-generated output folder (optional)
 output/
 
+# Ignore the entire data folder
+data/
+
+

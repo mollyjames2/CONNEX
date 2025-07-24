@@ -10,13 +10,14 @@ logger = logging.getLogger(__name__)
 package_version = "0.1.0"
 
 # Placeholder imports (until modules are populated)
-from .generate_data import *  # Use this to import everything from generate_data module
-from .graph_builder import *  # Use this to import everything from graph_builder module
-from .metrics import *  # Use this to import everything from metrics module
-from .plot import *  # Use this to import everything from plot module
-from .preprocessing import *  # Use this to import everything from preprocessing module
-from .shapefile_tools import *  # Use this to import everything from shapefile_tools module
-from .utils import *  # Use this to import everything from utils module
+from .examples.generate_example_data import *  # Use this to import everything from generate_data module
+from .analysis.analysis import *
+from .analysis.graph_builder import *  # Use this to import everything from graph_builder module
+from .analysis.metrics import *  # Use this to import everything from metrics module
+from .plot.plot import *  # Use this to import everything from plot module
+from .preproc.preprocessing import *  # Use this to import everything from preprocessing module
+from .preproc.shapefile_tools import *  # Use this to import everything from shapefile_tools module
+from .utils.utils import *  # Use this to import everything from utils module
 
 
 # If you want to limit what is exposed when using wildcard import (*),

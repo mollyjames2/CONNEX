@@ -1,0 +1,11 @@
+LICENSE
+README.md
+setup.py
+src/connex/__init__.py
+src/connex.egg-info/PKG-INFO
+src/connex.egg-info/SOURCES.txt
+src/connex.egg-info/dependency_links.txt
+src/connex.egg-info/requires.txt
+src/connex.egg-info/top_level.txt
+src/connex/examples/__init__.py
+src/connex/examples/generate_example_data.py

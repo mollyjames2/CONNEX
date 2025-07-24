@@ -1,0 +1,12 @@
+Metadata-Version: 2.4
+Name: connex
+Version: 0.1.0
+License-File: LICENSE
+Requires-Dist: numpy
+Requires-Dist: pandas
+Requires-Dist: xarray
+Requires-Dist: geopandas
+Requires-Dist: parcels
+Requires-Dist: shapely
+Dynamic: license-file
+Dynamic: requires-dist
