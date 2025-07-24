@@ -1,7 +1,7 @@
 import geopandas as gpd
 from connex.analysis.analysis import open_trajectory_data,summarize_connectivity_start_end, summarize_connectivity_by_path
 from connex.plot.plot import plot_trajectories
-from connex.analysis.graph_builder import build_connectivity_matrix
+from connex.analysis.graph_builder import build_connectivity_matrix_start_end
 import xarray as xr
 
 filepath = 'data/example_trajectories.zarr'
@@ -50,7 +50,7 @@ summary = summarize_connectivity_by_path(
 )
 
 
-matrix = build_connectivity_matrix(
+matrix = build_connectivity_matrix_start_end(
     data_path=filepath,
     shapefile_path="data/node_shp.shp",
 #    start_time="2002-05-07",

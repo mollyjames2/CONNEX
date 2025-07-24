@@ -5,7 +5,7 @@ import numpy as np
 from shapely.geometry import Point
 import os
 
-def build_connectivity_matrix(
+def build_connectivity_matrix_start_end(
     data_path,
     shapefile_path,
     start_time=None,
