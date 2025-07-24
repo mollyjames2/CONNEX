@@ -1,0 +1,21 @@
+name: connex-env
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  - python=3.10
+  - numpy
+  - pandas
+  - xarray
+  - netCDF4
+  - matplotlib
+  - geopandas
+  - shapely
+  - pyproj
+  - fiona
+  - parcels
+  - gdal
+  - pip
+  - pip:
+      - wget
+

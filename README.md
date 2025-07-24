@@ -71,43 +71,52 @@ CONNEX/
 ---
 
 ## Quickstart
+## Quickstart
 
-1. Install dependencies (Python 3.8+):
+1. **Install Connex Package** (Python 3.8+):
 
-```bash
-pip install -r requirements.txt
-```
+   Install the `connex` package and its dependencies using `pip`:
+
+   ```bash
+   pip install -e .
+   ```
+  This installs connex in editable mode for local development. If you're
+  installing from PyPI, you can use:
+
+  ```bash
+  pip install connex
+  ```
 
 2. Prepare your data  
-Use larval dispersal outputs in **NetCDF** or **CSV** format. These should contain particle release and settlement coordinates, and optionally timestamps.
+    Use larval dispersal outputs in **NetCDF** or **CSV** format. These should contain particle release and settlement coordinates, and optionally timestamps.
 
 3. Generate node shapefile (optional)
-
-```python
-from src.shapefile_tools import generate_node_grid
-generate_node_grid(extent=[-75, -65, 10, 20], cell_size=0.5, output_path='data/nodes.shp')
-```
+  
+  ```python
+  from connex.shapefile_tools import generate_node_grid
+  generate_node_grid(extent=[-75, -65, 10, 20], cell_size=0.5, output_path='data/nodes.shp')
+  ```
 
 4. Build connectivity graph
 
-```python
-from src.graph_builder import build_connectivity_graph
-G = build_connectivity_graph('data/larvae_dispersal.csv', 'data/nodes.shp')
-```
+  ```python
+  from connex.graph_builder import build_connectivity_graph
+  G = build_connectivity_graph('data/larvae_dispersal.csv', 'data/nodes.shp')
+  ```
 
 5. Compute metrics and detect communities
 
-```python
-from src.metrics import compute_all_metrics
-results = compute_all_metrics(G, detect_communities=True)
-```
+  ```python
+  from connex.metrics import compute_all_metrics
+  results = compute_all_metrics(G, detect_communities=True)
+  ```
 
 6. Visualize the network
 
-```python
-from src.visualization import plot_network
-plot_network(G, base_map='world')
-```
+  ```python
+  from connex.plot import plot_network
+  plot_network(G, base_map='world')
+  ```
 
 ---
 
@@ -142,7 +151,7 @@ plot_network(G, base_map='world')
 - `numpy`  
 - `basemap` or `cartopy` (for mapping)
 
-Install with:
+Can be installed seperately with:
 
 ```bash
 pip install -r requirements.txt
@@ -152,7 +161,7 @@ pip install -r requirements.txt
 
 ## Documentation & Tutorials
 
-See the `notebooks/` folder for:
+See the `notebooks/examples` folder for:
 
 - End-to-end examples  
 - Node generation workflows  
@@ -173,7 +182,7 @@ https://github.com/mollyjames2/connex/issues
 
 ## License
 
-MIT License. See the `LICENSE` file for details.
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
 ---
 

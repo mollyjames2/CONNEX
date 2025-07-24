@@ -36,17 +36,6 @@ Thumbs.db
 *.hdf
 *.nc
 
-# Allow example shapefiles and NetCDF files in the data folder
-!data/**/*.shp
-!data/**/*.shx
-!data/**/*.dbf
-!data/**/*.prj
-!data/**/*.cpg
-!data/**/*.tif
-!data/**/*.tiff
-!data/**/*.hdf
-!data/**/*.nc
-
 # Dependency lock files
 poetry.lock
 Pipfile.lock
