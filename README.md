@@ -181,7 +181,7 @@ Can be installed seperately with:
 ```bash
 pip install -r requirements.txt
 ```
- * Note that if you installed connex in a conda environment using the environment.yml these dependencies will     be installed*
+ * Note that if you installed connex in a conda environment using the environment.yml these dependencies will     be installed
 ---
 
 ## Documentation & Tutorials
