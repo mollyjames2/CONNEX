@@ -36,6 +36,9 @@ Thumbs.db
 *.hdf
 *.nc
 
+# Ignore temporary .nfs files
+*.nfs
+
 # Dependency lock files
 poetry.lock
 Pipfile.lock
