@@ -25,16 +25,13 @@ elapsed_time= None #timedelta(days=2) # choose the timestep for kde_plots. None 
 
 
 # Load the polygons from shapefile
-# These polygons define spatial nodes (e.g., settlement or habitat regions)
 polygon_gdf = gpd.read_file(shapefile_path)
 node_polys = polygon_gdf.geometry.tolist()
 node_ids = polygon_gdf["node_id"].tolist()
 
-# --- Load trajectory data into an xarray Dataset ---
 ds = open_trajectory_data(data_path)
 
 # --- Plot particle trajectories ---
-# This visualizes individual particle paths, optionally colored by release node
 print("\n🔹 Plotting trajectories...")
 plot_trajectories(
     data_path=data_path,
@@ -53,7 +50,6 @@ plot_trajectories(
 
 
 # --- Run start-end connectivity summary ---
-print("\n🔹 Calculating start-end connectivity summary...")
 summary = summarize_connectivity_start_end(
     ds=ds,
     particles_per_node=ppn,
@@ -67,10 +63,7 @@ summary = summarize_connectivity_start_end(
     pld_days=pld
 )
 
-# --- Run path-based connectivity summary ----
-# this allows conectivty to be considered if a particle passes through a node
-# in its competency window
-print("\n🔹 Calculating path based connectivity summary...")
+# Run path-based connectivity summary
 summary = summarize_connectivity_by_path(
     ds=ds,
     particles_per_node=ppn,
@@ -88,7 +81,6 @@ summary = summarize_connectivity_by_path(
 
 
 # --- Start-End Matrix ---
-# Returns a node-by-node matrix counting final destinations from each source
 print("\n🔷 Start-End Connectivity Matrix:")
 start_end_matrix = build_connectivity_matrix_start_end(
     data_path=data_path,
@@ -101,7 +93,6 @@ start_end_matrix = build_connectivity_matrix_start_end(
 print(start_end_matrix)
 
 # --- Path-Based Matrix ---
-# Captures node-to-node transitions during competency window (not just start/end)
 print("\n🔶 Path-Based Connectivity Matrix:")
 path_matrix = build_connectivity_matrix_by_path(
     data_path=data_path,
@@ -119,7 +110,6 @@ print(path_matrix)
 
 
 # --- Plot dispersal cloud at given timepoint for all particles ---
-# Shows dispersal density for all particles at a selected elapsed time
 plot_kde_snapshot(
     data_path=data_path,
     outputdt=outputdt,
@@ -134,7 +124,6 @@ plot_kde_snapshot(
 )
 
 # --- Plot dispersal cloud at given timepoint by release node ---
-#  Shows separate dispersal density clouds for particles grouped by release node
 plot_kde_snapshot_with_nodes(
     data_path=data_path,
     outputdt=outputdt,

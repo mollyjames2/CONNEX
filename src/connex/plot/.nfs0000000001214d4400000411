@@ -8,7 +8,6 @@ import numpy as np
 import matplotlib.cm as cm
 from datetime import timedelta
 from scipy.stats import gaussian_kde
-   
 
 def plot_trajectories(
     data_path,
@@ -119,9 +118,16 @@ def plot_trajectories(
     else:
         plt.show()
 
+from scipy.stats import gaussian_kde
+import xarray as xr
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+import cartopy.crs as ccrs
+import cartopy.feature as cfeature
+import os
 
-
-def plot_kde_snapshot(
+def plot_kde(
     data_path,
     outputdt,
     elapsed_time=None,
@@ -139,7 +145,7 @@ def plot_kde_snapshot(
 
     if ext in [".zarr", ".nc"]:
         ds = xr.open_zarr(data_path) if ext == ".zarr" else xr.open_dataset(data_path)
-        num_steps = ds.sizes[time_dim]
+        num_steps = ds.dims[time_dim]
         target_index = num_steps - 1 if elapsed_time is None else int(elapsed_time / outputdt)
 
         lons = ds[lon_var].isel({time_dim: target_index}).values
@@ -177,29 +183,20 @@ def plot_kde_snapshot(
 
     # Density cloud
     cf = ax.contourf(xi, yi, zi.reshape(xi.shape), levels=20, cmap='viridis', alpha=0.6, transform=ccrs.PlateCarree())
-    plt.colorbar(cf, ax=ax, label="Density", shrink=0.8)
+    plt.colorbar(cf, ax=ax, label="Density")
 
     # Optional: plot raw particle positions
     ax.scatter(lons, lats, color="black", s=1, alpha=0.3, transform=ccrs.PlateCarree(), label="Particle positions")
 
-    # Optional: draw node polygons (only one legend entry)
+    # Optional: draw node polygons
     if show_nodes and node_polys:
-        for i, poly in enumerate(node_polys):
+        for poly in node_polys:
             xs, ys = poly.exterior.xy
-            label = "Node boundary" if i == 0 else None
-            ax.plot(xs, ys, color='red', linewidth=1.2, transform=ccrs.PlateCarree(), label=label)
+            ax.plot(xs, ys, color='red', linewidth=1.2, transform=ccrs.PlateCarree(), label="Node boundary")
 
-    # Gridlines and layout
-    gl = ax.gridlines(draw_labels=True)
-    gl.top_labels = False
-    gl.right_labels = False
-
-    # Title and legend
     time_label = "Last timestep" if elapsed_time is None else f"t + {elapsed_time}"
     plt.title(f"Particle KDE ({time_label})")
     ax.legend(loc='lower left')
-
-    plt.tight_layout()
 
     if save_path:
         plt.savefig(save_path, dpi=300)
@@ -207,7 +204,8 @@ def plot_kde_snapshot(
     else:
         plt.show()
 
-def plot_kde_snapshot_with_nodes(
+
+def plot_kde_with_nodes(
     data_path,
     outputdt,
     elapsed_time=None,
@@ -222,6 +220,7 @@ def plot_kde_snapshot_with_nodes(
     show_nodes=False,
     node_polys=None
 ):
+    from scipy.stats import gaussian_kde
 
     ext = os.path.splitext(data_path)[-1].lower()
 
@@ -229,16 +228,11 @@ def plot_kde_snapshot_with_nodes(
     ax = plt.axes(projection=ccrs.PlateCarree())
     ax.coastlines()
     ax.add_feature(cfeature.LAND)
-    
-    # Add gridlines with lat/lon labels
-    gl = ax.gridlines(draw_labels=True)
-    gl.top_labels = False
-    gl.right_labels = False
+    ax.gridlines(draw_labels=True)
 
-    # --- Load and parse data ---
     if ext in [".zarr", ".nc"]:
         ds = xr.open_zarr(data_path) if ext == ".zarr" else xr.open_dataset(data_path)
-        num_steps = ds.sizes[time_dim]
+        num_steps = ds.dims[time_dim]
         target_index = num_steps - 1 if elapsed_time is None else int(elapsed_time / outputdt)
 
         lons_all = ds[lon_var].values
@@ -276,7 +270,6 @@ def plot_kde_snapshot_with_nodes(
     cmap = cm.get_cmap("tab10", num_nodes)
     colors = [cmap(i) for i in range(num_nodes)]
 
-    # --- Plot each node group ---
     for i in range(num_nodes):
         start_idx = i * particles_per_node
         end_idx = start_idx + particles_per_node
@@ -290,26 +283,21 @@ def plot_kde_snapshot_with_nodes(
         xi, yi = np.mgrid[min(node_lons):max(node_lons):100j, min(node_lats):max(node_lats):100j]
         zi = kde(np.vstack([xi.flatten(), yi.flatten()]))
 
-        # Draw KDE contours
-        ax.contour(xi, yi, zi.reshape(xi.shape), levels=10, colors=[colors[i]], linewidths=1, alpha=0.6, transform=ccrs.PlateCarree())
+        ax.contour(xi, yi, zi.reshape(xi.shape), levels=10, colors=[colors[i]], linewidths=1.2, alpha=0.7, transform=ccrs.PlateCarree())
 
-        # Draw particle positions (once, no legend clutter)
-        label = "Particles" if i == 0 else None
-        ax.scatter(node_lons, node_lats, s=1.5, color=colors[i], alpha=0.3, transform=ccrs.PlateCarree(), label=label)
+        # Scatter raw positions for visual context
+        ax.scatter(node_lons, node_lats, s=2, color=colors[i], alpha=0.3, transform=ccrs.PlateCarree())
 
-    # --- Optional: Node polygons ---
+    # Optional node polygon overlay
     if show_nodes and node_polys:
-        for i, poly in enumerate(node_polys):
+        for poly in node_polys:
             xs, ys = poly.exterior.xy
-            label = "Node boundary" if i == 0 else None
-            ax.plot(xs, ys, color='black', linewidth=1.2, linestyle="--", transform=ccrs.PlateCarree(), label=label)
+            ax.plot(xs, ys, color='black', linewidth=1.0, linestyle="--", transform=ccrs.PlateCarree())
 
-    # --- Final layout tweaks ---
+    # Final adjustments
     ax.set_extent(extent or [min(curr_lons)-1, max(curr_lons)+1, min(curr_lats)-1, max(curr_lats)+1])
     time_label = "Last timestep" if elapsed_time is None else f"t + {elapsed_time}"
     plt.title(f"Node-wise KDE ({time_label})")
-    ax.legend(loc='lower left')
-    plt.tight_layout()
 
     if save_path:
         plt.savefig(save_path, dpi=300)
