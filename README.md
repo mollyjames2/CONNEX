@@ -105,13 +105,13 @@ CONNEX/
   we advise setting up a conda environment for your install. This can be done by installing conda and creating   an environment using:
 
   ```bash
-conda env create -n connex python=3,11
+ conda env create -n connex python=3,11
   ```
-or by using the provided environment.yml (which will also install all required dependencies:
+ or by using the provided environment.yml (which will also install all required dependencies:
 
-```bash
-conda env create -f environment.yml
-```
+ ```bash
+ conda env create -f environment.yml
+ ```
 2. Prepare your data  
     Use larval dispersal outputs in **NetCDF**, .Zarr or **CSV** format. These should contain particle release and settlement coordinates, and optionally timestamps.
 
