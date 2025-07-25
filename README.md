@@ -21,7 +21,7 @@ By applying network science techniques, CONNEX enables researchers and marine pl
 
 ## How It Works
 
-CONNEX takes larval dispersal outputs in **NetCDF or CSV format**, containing particle tracking data with release and settlement coordinates (and optionally timestamps). It maps these trajectories onto **spatial nodes**, which are defined by a shapefile. These nodes represent areas such as habitat patches, grid cells, or management zones.
+CONNEX takes larval dispersal outputs in **NetCDF, .Zarr or CSV format**, containing particle tracking data with release and settlement coordinates (and optionally timestamps). It maps these trajectories onto **spatial nodes**, which are defined by a shapefile. These nodes represent areas such as habitat patches, grid cells, or management zones.
 
 You can:
 
@@ -36,12 +36,13 @@ This flexibility makes it easy to tailor the spatial resolution and structure of
 
 ## Key Features
 
-- Accepts larval dispersal outputs in **NetCDF or CSV** format  
+- Accepts larval dispersal outputs in **NetCDF, .Zarr or CSV** format  
 - Converts trajectories into adjacency matrices or edge lists  
 - Builds directed, weighted graphs using `networkx`  
 - Calculates metrics like degree, betweenness, clustering, and modularity  
 - Detects graph communities using algorithms like Louvain or Girvan–Newman  
-- Visualizes connectivity networks with spatial overlays  
+- Visualizes connectivity networks with spatial overlays
+- plots dispersal trajectories and dispersal density clouds  
 - Filters and thresholds links based on frequency, probability, or duration  
 - Supports batch analysis of multiple species, regions, or time steps  
 - Outputs results as shapefiles, GeoJSON, CSV, or graph objects  
@@ -87,7 +88,6 @@ CONNEX/
 ---
 
 ## Quickstart
-## Quickstart
 
 1. **Install Connex Package** (Python 3.8+):
 
@@ -102,9 +102,18 @@ CONNEX/
   ```bash
   pip install connex
   ```
+  we advise setting up a conda environment for your install. This can be done by installing conda and creating   an environment using:
 
+  ```bash
+conda env create -n connex python=3,11
+  ```
+or by using the provided environment.yml (which will also install all required dependencies:
+
+```bash
+conda env create -f environment.yml
+```
 2. Prepare your data  
-    Use larval dispersal outputs in **NetCDF** or **CSV** format. These should contain particle release and settlement coordinates, and optionally timestamps.
+    Use larval dispersal outputs in **NetCDF**, .Zarr or **CSV** format. These should contain particle release and settlement coordinates, and optionally timestamps.
 
 3. Generate node shapefile (optional)
   
@@ -172,13 +181,14 @@ Can be installed seperately with:
 ```bash
 pip install -r requirements.txt
 ```
-
+Note that if you installed connex in a conda environment using the environmeal.yml these dependencies will be installed
 ---
 
 ## Documentation & Tutorials
 
 See the `notebooks/examples` folder for:
 
+- Example input generation
 - End-to-end examples  
 - Node generation workflows  
 - Multi-species comparisons  
