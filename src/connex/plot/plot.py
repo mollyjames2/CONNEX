@@ -24,6 +24,27 @@ def plot_trajectories(
     color_by_node=False,
     particles_per_node=None
 ):
+     """
+    Plot particle trajectories over time from trajectory datasets.
+
+    Supports NetCDF, Zarr, and CSV formats. Each particle's path is plotted from start
+    to end with optional markers at initial and final locations.
+
+    Parameters:
+    - data_path: Path to the dataset (.zarr, .nc, or .csv)
+    - extent: Optional [min_lon, max_lon, min_lat, max_lat] for map view
+    - show_nodes: Whether to draw node polygons
+    - node_polys: List of shapely Polygon geometries for node outlines
+    - save_path: If set, plot is saved to this file instead of shown
+    - start_time, end_time: Optional datetime strings for filtering trajectories
+    - color_by_node: If True, colors particles by source node
+    - particles_per_node: Number of particles released per node (for color logic)
+
+    Notes:
+    - Particles are grouped by index to assign node-based coloring
+    - Adds start (o) and end (x) markers for each trajectory
+    """
+    
     print(f" Reading data from: {data_path}")
     ext = os.path.splitext(data_path)[-1].lower()
     fig = plt.figure(figsize=(10, 8))
@@ -135,6 +156,27 @@ def plot_kde_snapshot(
     show_nodes=False,
     node_polys=None
 ):
+      """
+    Plot a KDE (kernel density estimate) cloud for all particles at a specific timestep.
+
+    This function gives a spatial density view of particle positions at a selected
+    elapsed time since release. Useful for visualizing general dispersal envelopes.
+
+    Parameters:
+    - data_path: Path to dataset (.zarr, .nc, or .csv)
+    - outputdt: Timedelta of model output intervals (e.g., timedelta(hours=6))
+    - elapsed_time: Time since release to extract position snapshot (or None for last timestep)
+    - show_nodes: Whether to overlay node polygons
+    - node_polys: List of shapely Polygon geometries
+    - extent: Optional [min_lon, max_lon, min_lat, max_lat] view
+    - save_path: Path to save the plot instead of displaying
+    - time_var, time_dim, lon_var, lat_var: Variable and dimension names to support flexible datasets
+
+    Notes:
+    - Adds KDE cloud and raw particle points
+    - Node outlines are optionally plotted with one legend label
+    """
+    
     ext = os.path.splitext(data_path)[-1].lower()
 
     if ext in [".zarr", ".nc"]:
@@ -222,7 +264,28 @@ def plot_kde_snapshot_with_nodes(
     show_nodes=False,
     node_polys=None
 ):
+    """
+    Plot node-wise KDE snapshots at a specific time, separating density by origin node.
 
+    This function generates a spatial KDE for each group of particles released
+    from the same node, allowing comparison of dispersal footprints by origin.
+
+    Parameters:
+    - data_path: Path to dataset (.zarr, .nc, or .csv)
+    - outputdt: Timedelta representing model output interval
+    - elapsed_time: Time since release to extract snapshot (or None for last timestep)
+    - particles_per_node: Number of particles released per node (assumes grouping by order)
+    - show_nodes: Whether to draw polygon boundaries for nodes
+    - node_polys: List of shapely Polygon geometries
+    - extent: Optional [min_lon, max_lon, min_lat, max_lat] for map view
+    - save_path: Output filepath for saving plot
+    - time_var, time_dim, particle_dim, lon_var, lat_var: Variable/dim names for compatibility
+
+    Notes:
+    - Particles are grouped by index for each node's KDE
+    - Each node's KDE cloud is drawn with a unique color
+    - One node boundary and particle scatter entry are added to the legend
+    """
     ext = os.path.splitext(data_path)[-1].lower()
 
     fig = plt.figure(figsize=(10, 8))
