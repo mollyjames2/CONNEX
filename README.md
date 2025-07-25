@@ -53,18 +53,34 @@ This flexibility makes it easy to tailor the spatial resolution and structure of
 ```
 CONNEX/
 │
-├── data/                   # Example dispersal outputs or preprocessed files
-├── src/                    # Core codebase
-│   ├── preprocessing.py    # Converts raw trajectories into node/link data
-│   ├── shapefile_tools.py  # Node generation from particle data or grid
-│   ├── graph_builder.py    # Constructs network from dispersal matrix
-│   ├── metrics.py          # Computes graph metrics and communities
-│   ├── visualization.py    # Plots networks with basemaps
-│   └── utils.py            # Helper functions
-│
+├── src/
+  ├── connex/     # Core codebase
+        │   ├── analysis/
+                    │   ├── analysis.py    
+                    │   ├── graph_builder.py
+                    │   ├── metrics.py          
+                    │   └── __init__.py         
+        │   ├── examples/
+                    │   ├── generate_example_data.py          
+                    │   └── __init__.py  
+        │   ├── plot/
+                    │   ├── plot.py          
+                    │   └── __init__.py    
+        │   ├── preproc/
+        │   ├── utils          
+        │   └── __init__.py           
+  ├── connex.egg_info/     
+        │   ├── dependency_link.txt   
+        │   ├── PKG-INFO
+        │   ├── requires.txt
+        │   ├── SOURCES.txt
+        │   └── top_level.txt
 ├── notebooks/              # Jupyter tutorials and walkthroughs
 ├── output/                 # Generated graphs, metrics, maps
-├── README.md               # This file
+├── README.md           # This file
+├── LICENSE
+├── setup.py
+├── environment.yml         # to set up a conda environmen 
 └── requirements.txt        # Python dependencies
 ```
 
