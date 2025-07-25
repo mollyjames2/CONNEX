@@ -8,9 +8,7 @@ import numpy as np
 import matplotlib.cm as cm
 from datetime import timedelta
 from scipy.stats import gaussian_kde
-import geopandas as gpd   
-from matplotlib.patches import FancyArrowPatch
-import matplotlib.transforms as mtransforms
+   
 
 def plot_trajectories(
     data_path,
@@ -638,126 +636,5 @@ def plot_kde_with_nodes(
     plt.tight_layout()
 
     plt.show()
-
-
-def plot_connectivity_graph_map(
-    graph,
-    shapefile_path,
-    community_attribute="community",
-    title="Connectivity Graph",
-    node_size=8,
-    edge_color="gray",
-    edge_alpha=0.5,
-    edge_width_scale=1.0,
-    node_cmap="tab10",
-    show_labels=True,
-    extent=None,
-    save_path=None,
-    show_polygons=True,
-    show_arrows=False,
-    arrow_size=0.2
-):
-    """
-    Plot a connectivity graph over a geographic map using node polygon centroids.
-
-    Parameters:
-    - graph: An igraph.Graph object with node 'name' attributes matching node_id in shapefile
-    - shapefile_path: Path to the shapefile with node polygons (must include 'node_id')
-    - community_attribute: Node attribute to color by (default = 'community')
-    - title: Title for the plot
-    - node_size: Size of the node markers
-    - edge_color: Color of the edges
-    - edge_alpha: Transparency of edges
-    - edge_width_scale: Multiply edge weight by this for visible line thickness
-    - node_cmap: Colormap name for node communities
-    - show_labels: Whether to show node labels
-    - extent: Optional map bounds [min_lon, max_lon, min_lat, max_lat]
-    - save_path: File path to save the figure instead of showing
-    - show_polygons: If True, draw the full node polygons
-    - show_arrows: If True and graph is directed, show arrows on edges
-    - arrow_size: Arrowhead size (only if show_arrows is True)
-    """
-
-    # Load and index shapefile
-    gdf = gpd.read_file(shapefile_path)
-
-    # Project to UTM for accurate centroids, then back to WGS84
-    utm_crs = gdf.estimate_utm_crs()
-    gdf_proj = gdf.to_crs(utm_crs)
-    gdf["centroid"] = gdf_proj.centroid.to_crs("EPSG:4326")
-    gdf = gdf.set_index("node_id")
-
-    # Build node position dictionary
-    node_positions = {
-        node: (gdf.loc[node, "centroid"].x, gdf.loc[node, "centroid"].y)
-        for node in graph.vs["name"]
-    }
-
-    # Setup map
-    fig = plt.figure(figsize=(12, 10))
-    ax = plt.axes(projection=ccrs.PlateCarree())
-    ax.set_title(title)
-    ax.add_feature(cfeature.COASTLINE)
-    ax.add_feature(cfeature.LAND)
-    ax.gridlines(draw_labels=True)
-
-    # Optional: draw the full node polygons
-    if show_polygons:
-        gdf.reset_index(drop=True).geometry.boundary.plot(
-            ax=ax, color="black", linewidth=1, transform=ccrs.PlateCarree())
-
-    # Plot edges
-    weights = graph.es["weight"] if "weight" in graph.es.attributes() else [1] * len(graph.es)
-    for i, edge in enumerate(graph.es):
-        src = graph.vs[edge.source]["name"]
-        tgt = graph.vs[edge.target]["name"]
-        x0, y0 = node_positions[src]
-        x1, y1 = node_positions[tgt]
-        lw = weights[i] * edge_width_scale
-
-        if show_arrows and graph.is_directed():
-            # Convert geographic to display coordinates
-            src_disp = ax.projection.transform_point(x0, y0, ccrs.PlateCarree())
-            tgt_disp = ax.projection.transform_point(x1, y1, ccrs.PlateCarree())
-
-            arrow = FancyArrowPatch(
-                posA=src_disp,
-                posB=tgt_disp,
-                arrowstyle='->',
-                color=edge_color,
-                alpha=edge_alpha,
-                linewidth=lw,
-                mutation_scale=arrow_size * 100,
-                transform=mtransforms.IdentityTransform()
-            )
-            ax.add_patch(arrow)
-        else:
-            ax.plot([x0, x1], [y0, y1],
-                    color=edge_color,
-                    linewidth=lw,
-                    alpha=edge_alpha,
-                    transform=ccrs.PlateCarree())
-
-    # Plot nodes
-    communities = graph.vs[community_attribute]
-    cmap = cm.get_cmap(node_cmap)
-
-    for v in graph.vs:
-        x, y = node_positions[v["name"]]
-        color = cmap(communities[v.index] % cmap.N)
-        ax.plot(x, y, marker='o', markersize=node_size, color=color, transform=ccrs.PlateCarree())
-        if show_labels:
-            ax.text(x, y, str(v["name"]), fontsize=8, ha='center', va='bottom', transform=ccrs.PlateCarree())
-
-    # Adjust map extent
-    if extent:
-        ax.set_extent(extent, crs=ccrs.PlateCarree())
-
-    plt.tight_layout()
-    if save_path:
-        plt.savefig(save_path, dpi=300)
-        print(f"✅ Saved graph map to: {save_path}")
-    else:
-        plt.show()
 
 

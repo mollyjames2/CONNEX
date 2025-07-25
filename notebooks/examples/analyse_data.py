@@ -1,8 +1,8 @@
 import geopandas as gpd
 from connex.analysis.analysis import open_trajectory_data,summarize_connectivity_start_end, summarize_connectivity_by_path
 from connex.plot.plot import plot_trajectories, plot_kde_snapshot, plot_kde_snapshot_with_nodes
-from connex.plot.plot import  plot_kde, plot_kde_with_nodes
-from connex.analysis.graph_builder import build_connectivity_matrix_start_end, build_connectivity_matrix_by_path
+from connex.plot.plot import  plot_kde, plot_kde_with_nodes, plot_connectivity_graph_map
+from connex.analysis.graph_builder import build_connectivity_matrix_start_end, build_connectivity_matrix_by_path, connectivity_graph
 import xarray as xr
 from datetime import timedelta
 
@@ -185,4 +185,59 @@ plot_kde_with_nodes(
     show_nodes=True,
     node_polys=node_polys
 )
+
+
+# --- Graph Network Analysis of the start end matrix ---
+#graph analysis using FastGreedy (undirected, no self-recruitment)
+metrics_df_se, graph_se = connectivity_graph(
+    start_end_matrix,
+    community_algorithm="fastgreedy",
+    directed=False,
+    remove_self_loops=True
+)
+
+print(metrics_df_se)
+
+# --- Plotting the connectivity graph
+plot_connectivity_graph_map(
+    graph=graph_se,
+    shapefile_path=shapefile_path,
+    title="Connectivity Graph (FastGreedy, Directed, No Self-Loops)",
+    node_size=10,
+    edge_color="black",
+    edge_alpha=0.5,
+    edge_width_scale=0.25,    # make edge weights more visible
+    show_labels=True,
+    show_arrows=True,
+    save_path=None
+)
+
+
+# --- Graph Network Analysis of the competency window  matrix ---
+#graph analysis using FastGreedy (undirected, no self-recruitment)
+metrics_df_path, graph_path = connectivity_graph(
+    path_matrix,
+    community_algorithm="fastgreedy",
+    directed=False,
+    remove_self_loops=True
+)
+
+print(metrics_df_path)
+
+# --- Plotting the connectivity graph
+# Plot the network on a map
+plot_connectivity_graph_map(
+    graph=graph_path,
+    shapefile_path=shapefile_path,
+    title="Connectivity Graph (FastGreedy, Directed, No Self-Loops)",
+    node_size=10,
+    edge_color="black",
+    edge_alpha=0.5,
+    edge_width_scale=0.25,    # make edge weights more visible
+    show_labels=True,
+    show_arrows=True,
+    save_path=None
+)
+
+
 

@@ -21,7 +21,7 @@ cligj @ file:///home/conda/feedstock_root/build_artifacts/cligj_1733749956636/wo
 cloudpickle @ file:///home/conda/feedstock_root/build_artifacts/cloudpickle_1736947526808/work
 colorama @ file:///home/conda/feedstock_root/build_artifacts/colorama_1733218098505/work
 commonmark==0.9.1
--e git+ssh://git@github.com/mollyjames2/CONNEX.git@b2d5c7ea1e9d2f890dfa0adb21b7aa50d245d896#egg=connex
+-e git+ssh://git@github.com/mollyjames2/CONNEX.git@b2dea9b1b1ec7e43cc334eee062c6f6e7b056979#egg=connex
 contourpy @ file:///home/conda/feedstock_root/build_artifacts/contourpy_1744743067588/work
 cycler @ file:///home/conda/feedstock_root/build_artifacts/cycler_1733332471406/work
 cytoolz @ file:///home/conda/feedstock_root/build_artifacts/cytoolz_1734107196509/work
@@ -45,6 +45,7 @@ h2 @ file:///home/conda/feedstock_root/build_artifacts/h2_1738578511449/work
 hpack @ file:///home/conda/feedstock_root/build_artifacts/hpack_1737618293087/work
 hyperframe @ file:///home/conda/feedstock_root/build_artifacts/hyperframe_1737618333194/work
 idna @ file:///home/conda/feedstock_root/build_artifacts/idna_1733211830134/work
+igraph==0.11.9
 immutabledict @ file:///home/conda/feedstock_root/build_artifacts/immutabledict_1736377697297/work
 importlib_metadata @ file:///home/conda/feedstock_root/build_artifacts/bld/rattler-build_importlib-metadata_1747934053/work
 iniconfig @ file:///home/conda/feedstock_root/build_artifacts/iniconfig_1733223141826/work
@@ -125,6 +126,7 @@ soupsieve==2.7
 stack-data==0.6.3
 svgwrite==1.4.3
 tblib @ file:///home/conda/feedstock_root/build_artifacts/tblib_1743515515538/work
+texttable==1.7.0
 textual==0.1.18
 threadpoolctl @ file:///home/conda/feedstock_root/build_artifacts/threadpoolctl_1741878222898/work
 tinycss2==1.4.0

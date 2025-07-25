@@ -5,7 +5,6 @@ import numpy as np
 from shapely.geometry import Point
 import os
 from datetime import timedelta
-import igraph as ig
 
 def build_connectivity_matrix_start_end(
     data_path,
@@ -153,100 +152,5 @@ def build_connectivity_matrix_by_path(
             for target_id in visited:
                 matrix.at[src_id, target_id] += 1
 
-    print(f" Path-based connectivity matrix built from {n_particles} particles.")
+    print(f"? Path-based connectivity matrix built from {n_particles} particles.")
     return matrix
-    
-
-
-def connectivity_graph(
-    matrix,
-    community_algorithm="louvain",
-    directed=True,
-    remove_self_loops=True
-):
-    """
-    Construct and analyze a connectivity graph from a matrix of node-to-node link strengths.
-
-    Parameters:
-    - matrix (pd.DataFrame): Square matrix with node IDs as index and columns (e.g., output of build_connectivity_matrix_*)
-    - community_algorithm (str): One of ["louvain", "fastgreedy", "leiden"]
-    - directed (bool): If True, treat the graph as directed; if False, undirected
-    - remove_self_loops (bool): If True, zero out diagonal/self-recruitment links
-
-    Returns:
-    - metrics_df (pd.DataFrame): Table of graph metrics for each node
-    - graph (igraph.Graph): The constructed graph object (for saving or plotting)
-    """
-
-    if remove_self_loops:
-        matrix = matrix.copy()
-        for node in matrix.index:
-            matrix.at[node, node] = 0
-
-    nodes = list(matrix.index)
-    edge_list = []
-    edge_weights = []
-
-    for i, src in enumerate(nodes):
-        for j, tgt in enumerate(nodes):
-            weight = matrix.at[src, tgt]
-            if weight > 0:
-                edge_list.append((i, j))
-                edge_weights.append(weight)
-
-    # Build the graph
-    graph = ig.Graph(directed=directed)
-    graph.add_vertices(len(nodes))
-    graph.vs["name"] = nodes
-    graph.add_edges(edge_list)
-    graph.es["weight"] = edge_weights
-
-    # Compute centrality metrics
-    pagerank = graph.pagerank(weights="weight", directed=directed)
-    degree = graph.degree(mode="all")
-    in_degree = graph.degree(mode="in")
-    out_degree = graph.degree(mode="out")
-    closeness = graph.closeness(weights="weight", mode="all", normalized=True)
-    betweenness = graph.betweenness(weights="weight", directed=directed)
-    eigenvector = graph.eigenvector_centrality(weights="weight", directed=directed)
-    clustering = graph.transitivity_local_undirected(vertices=None, mode="zero")
-
-    # Run community detection
-    if community_algorithm == "fastgreedy":
-        if directed:
-            raise ValueError("FastGreedy only supports undirected graphs. Set directed=False.")
-        communities = graph.community_fastgreedy(weights="weight").as_clustering()
-
-    elif community_algorithm == "louvain":
-        communities = graph.community_multilevel(weights="weight")
-
-    elif community_algorithm == "leiden":
-        try:
-            import leidenalg
-        except ImportError:
-            raise ImportError("The 'leidenalg' package is required for Leiden community detection. Install it with `pip install leidenalg`.")
-        communities = leidenalg.find_partition(graph, leidenalg.ModularityVertexPartition, weights="weight")
-
-    else:
-        raise ValueError(f"Unsupported community algorithm: {community_algorithm}")
-
-    graph.vs["community"] = communities.membership
-
-    # Create metrics DataFrame
-    metrics_df = pd.DataFrame({
-        "node": nodes,
-        "pagerank": pagerank,
-        "degree": degree,
-        "in_degree": in_degree,
-        "out_degree": out_degree,
-        "closeness": closeness,
-        "betweenness": betweenness,
-        "eigenvector": eigenvector,
-        "clustering": clustering,
-        "community": communities.membership
-    })
-
-    return metrics_df, graph
-
-
-
