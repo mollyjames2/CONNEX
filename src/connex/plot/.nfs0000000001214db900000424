@@ -124,7 +124,7 @@ def plot_trajectories(
 
     ax.coastlines()
     ax.add_feature(cfeature.LAND, zorder=0, edgecolor='black')
-    gl = ax.gridlines(draw_labels=True)
+    ax.gridlines(draw_labels=True)
     gl.top_labels = False
     gl.right_labels = False
     gl.xlabel_style = {'size': 10}

@@ -1,6 +1,7 @@
 import geopandas as gpd
 from connex.analysis.analysis import open_trajectory_data,summarize_connectivity_start_end, summarize_connectivity_by_path
 from connex.plot.plot import plot_trajectories, plot_kde_snapshot, plot_kde_snapshot_with_nodes
+from connex.plot.plot import  plot_kde, plot_kde_with_nodes
 from connex.analysis.graph_builder import build_connectivity_matrix_start_end, build_connectivity_matrix_by_path
 import xarray as xr
 from datetime import timedelta
@@ -148,3 +149,40 @@ plot_kde_snapshot_with_nodes(
     show_nodes=True,
     node_polys=node_polys
 )
+
+# --- Plot overall KDE for all particles during their competency window ---
+# This generates a single density cloud using all particle positions
+# from settlement time until their PLD (if provided), or until the last timestep.
+plot_kde(
+    data_path=data_path,
+    outputdt=outputdt,
+    settlement_hours=settlement_hours,
+    pld_days=pld,
+    time_var=time_var,
+    time_dim=time_dim,
+    particle_dim=particle_dim,
+    lon_var=lon_var,
+    lat_var=lat_var,
+    show_nodes=True,
+    node_polys=node_polys
+)
+
+# --- Plot node-wise KDEs during the competency window ---
+# This creates separate KDE clouds for each release node using particle positions 
+# within their competency window (from settlement time to PLD or end of sim).
+# Useful for visualizing spatial spread by origin.
+plot_kde_with_nodes(
+    data_path=data_path,
+    outputdt=outputdt,
+    settlement_hours=settlement_hours,
+    pld_days=pld,
+    particles_per_node=ppn,
+    time_var=time_var,
+    time_dim=time_dim,
+    particle_dim=particle_dim,
+    lon_var=lon_var,
+    lat_var=lat_var,
+    show_nodes=True,
+    node_polys=node_polys
+)
+
