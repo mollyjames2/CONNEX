@@ -250,3 +250,85 @@ def connectivity_graph(
 
 
 
+def summarize_connectivity_graph_metrics(metrics_df, output_file=None):
+    """
+    Generate a plain-English summary of graph network metrics from a larval dispersal connectivity matrix.
+
+    Parameters:
+    - metrics_df: DataFrame from the `connectivity_graph()` function, with one row per node.
+    - output_file: Optional path to a .txt file to save the summary.
+
+    Returns:
+    - summary (str): A formatted text summary of the network structure.
+    """
+    lines = []
+    total_nodes = len(metrics_df)
+    isolated = metrics_df[metrics_df["degree"] == 0]
+    connected = metrics_df[metrics_df["degree"] > 0]
+
+    lines.append(f"\n The network contains {total_nodes} nodes representing release and/or settlement areas.")
+
+    if not isolated.empty:
+        iso_ids = ', '.join(str(n) for n in isolated['node'].tolist())
+        lines.append(
+            f"\n {len(isolated)} node(s) had no recorded larval exchange with any other nodes "
+            f"\n (i.e., no larvae were observed dispersing from the node and settling in another node or settling into this node from another node). \n These were: {iso_ids}."
+        )
+    else:
+        lines.append("\n All nodes participated in at least some level of larval dispersal.")
+
+    # ---- Top PageRank ----
+    max_pagerank = metrics_df["pagerank"].max()
+    top_pagerank_nodes = metrics_df[metrics_df["pagerank"] == max_pagerank]["node"].tolist()
+    node_list_str = ', '.join(str(n) for n in top_pagerank_nodes)
+    lines.append(
+        f"\n Node(s) {node_list_str} had the highest PageRank score ({max_pagerank:.3f}), "
+        f"\n indicating strong overall influence in the network (likely acting as both larval sources and sinks)."
+    )
+
+    # ---- In-degree / Out-degree ----
+    max_in = metrics_df["in_degree"].max()
+    top_in_nodes = metrics_df[metrics_df["in_degree"] == max_in]["node"].tolist()
+    max_out = metrics_df["out_degree"].max()
+    top_out_nodes = metrics_df[metrics_df["out_degree"] == max_out]["node"].tolist()
+
+    lines.append(
+        f"\n Node(s) {', '.join(str(n) for n in top_in_nodes)} received larvae from the most nodes "
+        f"(in-degree = {max_in}), \n while node(s) {', '.join(str(n) for n in top_out_nodes)} "
+        f"exported larvae to the most others (out-degree = {max_out})."
+    )
+
+    # ---- Betweenness ----
+    max_between = metrics_df["betweenness"].max()
+    if max_between > 0:
+        top_between_nodes = metrics_df[metrics_df["betweenness"] == max_between]["node"].tolist()
+        lines.append(
+            f"\n Node(s) {', '.join(str(n) for n in top_between_nodes)} had the highest betweenness centrality "
+            f"\n ({max_between:.2f}), suggesting they acted as key stepping-stones or bridges "
+            f"linking otherwise separated parts of the network."
+        )
+    else:
+        lines.append("\n No nodes served as intermediaries (betweenness = 0), indicating limited dispersal corridors.")
+
+    # ---- Community detection ----
+    n_communities = metrics_df["community"].nunique()
+    lines.append(
+        f"\n The network contains {n_communities} community cluster(s), representing groups of nodes with high internal connectivity."
+    )
+
+    for cid in sorted(metrics_df["community"].unique()):
+        members = metrics_df[metrics_df["community"] == cid]["node"].tolist()
+        lines.append(f"  • Community {cid}: Nodes {', '.join(map(str, members))}")
+
+    # ---- Output
+    summary_text = "\n".join(lines)
+
+    if output_file:
+        with open(output_file, "w") as f:
+            f.write(summary_text)
+        print(f" Summary saved to: {output_file}")
+
+    print(summary_text)
+    return summary_text
+
+

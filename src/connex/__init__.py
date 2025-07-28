@@ -12,7 +12,7 @@ package_version = "0.1.0"
 # Placeholder imports (until modules are populated)
 from .examples.generate_example_data import *  # Use this to import everything from generate_data module
 from .analysis.analysis import *
-from .analysis.graph_builder import *  # Use this to import everything from graph_builder module
+from .analysis.graph_network import *  # Use this to import everything from graph_builder module
 from .analysis.metrics import *  # Use this to import everything from metrics module
 from .plot.plot import *  # Use this to import everything from plot module
 #from .preproc.preprocessing import *  # Use this to import everything from preprocessing module
