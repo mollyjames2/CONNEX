@@ -241,7 +241,8 @@ def plot_kde_snapshot(
     extent=None,
     save_path=None,
     show_nodes=False,
-    node_polys=None
+    node_polys=None,
+    show_particles=True 
 ):
     """
     Plot a KDE (kernel density estimate) cloud for all particles at a specific timestep,
@@ -291,7 +292,9 @@ def plot_kde_snapshot(
     ax.set_extent(extent or [min(lons)-1, max(lons)+1, min(lats)-1, max(lats)+1])
     cf = ax.contourf(xi, yi, zi.reshape(xi.shape), levels=20, cmap='viridis', alpha=0.6, transform=ccrs.PlateCarree())
     plt.colorbar(cf, ax=ax, label="Density", shrink=0.8)
-    ax.scatter(lons, lats, color="black", s=1, alpha=0.3, transform=ccrs.PlateCarree(), label="Particle positions")
+    
+    if show_particles:
+        ax.scatter(lons, lats, color="black", s=1, alpha=0.3, transform=ccrs.PlateCarree(), label="Particle positions")
 
     if show_nodes and node_polys:
         for i, poly in enumerate(node_polys):
@@ -307,7 +310,10 @@ def plot_kde_snapshot(
 
     time_label = "Last timestep" if pld is None else f"{pld} days"
     plt.title(f"Particle KDE ({time_label})")
-    ax.legend(loc='lower left')
+    handles, labels = ax.get_legend_handles_labels()
+    if labels:
+        ax.legend(loc='lower left')
+
     plt.tight_layout()
     if save_path:
         plt.savefig(save_path, dpi=300)
@@ -330,7 +336,8 @@ def plot_kde_snapshot_with_nodes(
     extent=None,
     save_path=None,
     show_nodes=False,
-    node_polys=None
+    node_polys=None,
+    show_particles=True
 ):
     """
     Plot node-wise KDE snapshots at a specific time based on PLD (in days),
@@ -404,7 +411,9 @@ def plot_kde_snapshot_with_nodes(
         zi = kde(np.vstack([xi.flatten(), yi.flatten()]))
 
         ax.contour(xi, yi, zi.reshape(xi.shape), levels=10, colors=[colors[nid]], linewidths=1, alpha=0.6, transform=ccrs.PlateCarree())
-        ax.scatter(node_lons, node_lats, s=1.5, color=colors[nid], alpha=0.3, transform=ccrs.PlateCarree(), label=f"Node {nid}")
+        
+        if show_particles:
+            ax.scatter(node_lons, node_lats, s=1.5, color=colors[nid], alpha=0.3, transform=ccrs.PlateCarree(), label=f"Node {nid}")
 
     if show_nodes and node_polys:
         for i, poly in enumerate(node_polys):
@@ -439,7 +448,8 @@ def plot_kde(
     extent=None,
     save_path=None,
     show_nodes=False,
-    node_polys=None
+    node_polys=None,
+    show_particles=True
 ):
     """
     Plot a KDE (Kernel Density Estimate) of all particles within their competency window.
@@ -512,7 +522,9 @@ def plot_kde(
 
     cf = ax.contourf(xi, yi, zi.reshape(xi.shape), levels=20, cmap='viridis', alpha=0.6, transform=ccrs.PlateCarree())
     plt.colorbar(cf, ax=ax, label="Density", shrink=0.8)
-    ax.scatter(lons, lats, color="black", s=1, alpha=0.3, transform=ccrs.PlateCarree(), label="Particle positions")
+    
+    if show_particles:
+        ax.scatter(lons, lats, color="black", s=1, alpha=0.3, transform=ccrs.PlateCarree(), label="Particle positions")
 
     if show_nodes and node_polys:
         for i, poly in enumerate(node_polys):
@@ -527,7 +539,10 @@ def plot_kde(
     ax.text(-0.08, 0.5, 'Latitude', transform=ax.transAxes,ha='center', va='bottom', rotation='vertical', fontsize=12)
 
     plt.title("Particle KDE (competency window)")
-    ax.legend(loc='lower left')
+    handles, labels = ax.get_legend_handles_labels()
+    if labels:
+        ax.legend(loc='lower left')
+
     plt.tight_layout()
 
     if save_path:
@@ -550,7 +565,8 @@ def plot_kde_with_nodes(
     extent=None,             # list[float] or None: Optional map extent [min_lon, max_lon, min_lat, max_lat]
     save_path=None,          # str or None: File path to save the plot (optional)
     show_nodes=False,        # bool: Whether to overlay node boundary polygons
-    node_polys=None          # list[Polygon]: Optional list of Shapely polygons for spatial nodes
+    node_polys=None,         # list[Polygon]: Optional list of Shapely polygons for spatial nodes
+    show_particles=True      # bool: whether or not to show the particles on the plot 
 ):
 
     """
@@ -645,7 +661,9 @@ def plot_kde_with_nodes(
 
         color = node_to_color[node_id]
         ax.contour(xi, yi, zi.reshape(xi.shape), levels=10, colors=[color], linewidths=1, alpha=0.6, transform=ccrs.PlateCarree())
-        ax.scatter(node_lons, node_lats, s=1.5, color=color, alpha=0.3, transform=ccrs.PlateCarree(), label=f"Node {node_id}")
+        
+        if show_particles:
+            ax.scatter(node_lons, node_lats, s=1.5, color=color, alpha=0.3, transform=ccrs.PlateCarree(), label=f"Node {node_id}")
 
     if show_nodes and node_polys:
         for i, poly in enumerate(node_polys):
