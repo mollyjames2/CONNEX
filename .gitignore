@@ -9,6 +9,9 @@ __pycache__/
 env/
 venv/
 
+# test locations
+tests/
+
 # Jupyter Notebook checkpoints
 .ipynb_checkpoints/
 

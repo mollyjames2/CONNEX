@@ -1,7 +1,7 @@
 import geopandas as gpd
 from connex.analysis.analysis import open_trajectory_data,summarize_connectivity_start_end, summarize_connectivity_by_path
 from connex.plot.plot import plot_trajectories, plot_kde_snapshot, plot_kde_snapshot_with_nodes, start_node_assignment
-from connex.plot.plot import  plot_kde, plot_kde_with_nodes, plot_connectivity_graph_map
+from connex.plot.plot import  plot_kde, plot_kde_with_nodes,plot_connectivity_graph_map, plot_depth_timeseries
 from connex.analysis.graph_network import build_connectivity_matrix_start_end,build_connectivity_matrix_by_path, connectivity_graph, summarize_connectivity_graph_metrics
 import xarray as xr
 from datetime import timedelta
@@ -9,7 +9,7 @@ from datetime import timedelta
 # --- User Configuration ---
 data_path = "data/pylag_1.nc"  # or .nc
 outputdt = timedelta(seconds=300) # the output timestep of the simulation data
-settlement_hours = 48  # Minimum age to settle
+settlement_hours = 96  # Minimum age to settle
 extent = [-5.1, -4.9, 50, 50.2]#[min_lon, max_lon, min_lat, max_lat]
 
 time_var = "time"
@@ -17,12 +17,15 @@ time_dim = "time"
 particle_dim = "particles"
 lon_var = "longitude"
 lat_var = "latitude"
+depth_var = "depth"
+
 pld = None  #pld in days. setting to None will use the last timestep in the
          #simulation data, so will setting to a larger number than the days in the simulation
 
 
 # --- Choose what to show ---
 trajectories = True
+depth = True
 snapshot = True # will show connectivity at a set end point (set by pld) - if pld is None this will be the last timestep in the datafile
 comp_window = True  # will show connectivity based on all particle locations during their competency winoe
 dispersal_cloud = True #kde plots of the dispersal clouds
@@ -31,7 +34,22 @@ dispersal_cloud = True #kde plots of the dispersal clouds
 ds = open_trajectory_data(data_path)
 
 
-
+if depth:
+    plot_depth_timeseries(
+    data_path=data_path,
+    depth_var=depth_var,
+    time_var=time_var,
+    particle_dim=particle_dim,
+    time_dim=time_dim,
+    start_nodes=None,
+    particle_ids=None,
+    color_by_node=False,
+    outputdt=outputdt,
+    pld=pld,
+    save_path=None,
+    min_depth=0,
+    max_depth=None,
+)
 
 
 if trajectories:
@@ -87,6 +105,8 @@ if comp_window:
             lon_var=lon_var,
             lat_var=lat_var,
             show_nodes=False,
-            show_particles=False
+            show_particles=False,
+            timestep=timedelta(hours=1),
+            kde_resolution=200
         )
        

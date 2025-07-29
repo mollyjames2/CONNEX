@@ -7,8 +7,8 @@ import xarray as xr
 from datetime import timedelta
 
 # --- User Configuration ---
-data_path = "data/example_trajectories.zarr"  # or .nc
-shapefile_path = "data/node_shp.shp"
+data_path = "../../test/data/example_trajectories.zarr"  # or .nc
+shapefile_path = "../test/data/node_shp.shp"
 start_time = None  # Or "2025-01-01T00:00:00"
 end_time = None    # Or "2025-01-05T00:00:00"
 outputdt = timedelta(hours=6) # the output timestep of the simulation data
@@ -108,7 +108,8 @@ if snapshot:
            lon_var=lon_var,
            lat_var=lat_var,
            show_nodes=True,
-           node_polys=node_polys
+           node_polys=node_polys,
+           show_particles=True
        )
   
        # --- Plot dispersal cloud at given PLD by release node ---
@@ -125,7 +126,8 @@ if snapshot:
            show_nodes=True,
            start_nodes=start_nodes,
            node_ids=node_ids,
-           node_polys=node_polys
+           node_polys=node_polys,
+           show_particles=True
        )
 
 
@@ -211,7 +213,8 @@ if comp_window:
             lon_var=lon_var,
             lat_var=lat_var,
             show_nodes=True,
-            node_polys=node_polys
+            node_polys=node_polys,
+            show_particles=True
         )
         
         # --- Plot node-wise KDEs during the competency window ---
@@ -230,7 +233,8 @@ if comp_window:
             lon_var=lon_var,
             lat_var=lat_var,
             show_nodes=True,
-            node_polys=node_polys
+            node_polys=node_polys,
+            show_particles=True
         )
 
     if network_analysis:
